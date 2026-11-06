@@ -52,7 +52,8 @@ jobs:
           for P in INTERNET RECORD_AUDIO MODIFY_AUDIO_SETTINGS; do
             grep -q "android.permission.$P" $M || sed -i "0,/<application/s|<application|<uses-permission android:name=\"android.permission.$P\" />\n    <application|" $M
           done
-          grep -n 'uses-permission' $M
+          grep -q usesCleartextTraffic $M || sed -i 's|<application|<application android:usesCleartextTraffic="true"|' $M
+          grep -n 'uses-permission\|usesCleartextTraffic' $M
 
       - name: Verify Android Gradle files
         run: |
