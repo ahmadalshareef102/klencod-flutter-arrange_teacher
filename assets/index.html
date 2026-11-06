@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تمارين الترتيب</title>
+<style>
+:root{--bg:#f3f3f3;--card:#fff;--tx:#222;--pr:#7b83c9;--bub:#8347b0;--ok:#4cba4c;--ln:#d0d0e8}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c22;--card:#2a2a33;--tx:#eee;--ln:#444a70}}
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:var(--bg);color:var(--tx)}
+header{background:var(--card);padding:10px 14px;display:flex;gap:8px;align-items:center;box-shadow:0 1px 4px #0002}
+header h1{font-size:17px;margin:0;flex:1}
+.tab{border:0;background:none;padding:8px 12px;border-radius:8px;font:inherit;color:inherit;cursor:pointer}
+.tab.on{background:var(--pr);color:#fff}
+main{max-width:720px;margin:auto;padding:12px}
+.card{background:var(--card);border-radius:12px;padding:12px;margin-bottom:12px}
+label{display:block;font-size:13px;margin:8px 0 3px}
+input,select,textarea,button{font:inherit;color:inherit}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--ln);border-radius:8px;background:var(--bg)}
+textarea{min-height:80px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+.btn{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;flex:none}
+.btn.g{background:none;color:inherit;border:1px solid var(--ln)}.btn.r{background:#c0392b}
+.btn:disabled{opacity:.4}
+.tag{display:inline-block;background:var(--bg);border-radius:6px;padding:3px 8px;margin:2px;font-size:13px}
+.it{border-bottom:1px solid var(--ln);padding:8px 0;display:flex;gap:8px;align-items:center}
+.it>div{flex:1}.it small{opacity:.7}
+.stage{display:flex;align-items:center;gap:10px;background:#44b89c;border-radius:12px;padding:12px;min-height:200px}
+.stage img{max-width:38%;max-height:170px;border-radius:8px}
+.bub{flex:1;background:var(--bub);color:#fff;border-radius:40px 40px 40px 6px;padding:18px;min-height:130px;
+ display:flex;flex-wrap:wrap;gap:6px 4px;align-content:center;justify-content:center;font-size:28px;line-height:1.5}
+.sl{min-width:34px;min-height:44px;border-bottom:3px dotted #fff8;text-align:center;padding:0 4px;cursor:pointer}
+.sl.f{border-color:transparent}
+.bar{display:flex;gap:3px;margin:12px 0}.bar i{flex:1;height:16px;background:#ddd;border-radius:4px}.bar i.d{background:var(--ok)}.bar i.c{outline:2px solid var(--pr)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;min-height:64px}
+.chip{background:var(--card);border:2px solid var(--ln);border-radius:10px;padding:10px 16px;font-size:24px;cursor:pointer;min-width:60px}
+.chip.u{background:#c5c8ea;opacity:.55;pointer-events:none}
+.nav{display:flex;gap:8px;margin-top:12px}.nav button{flex:1}
+.rr{display:flex;gap:6px;align-items:center;margin:4px 0}.rr b{flex:1;font-weight:400}.rr .btn{padding:6px 10px}
+.hid{display:none}.chip.x{animation:sh .35s;border-color:#c0392b}@keyframes sh{25%{transform:translateX(7px)}75%{transform:translateX(-7px)}}.big .st{font-size:38px;letter-spacing:4px}.big{text-align:center;padding:30px;font-size:22px}
+</style>
+</head>
+<body>
+<header><h1>🧩 تمارين الترتيب</h1>
+<button class="tab on" id="t1" onclick="tab(1)">الاختبار</button>
+<button class="tab" id="t2" onclick="tab(2)">إدارة المعلم</button></header>
+<main>
+<section id="p1">
+ <div class="card" id="setup">
+  <div class="row"><div><label>الصف</label><select id="qg"></select></div>
+  <div><label>المادة</label><select id="qs"></select></div>
+  <div><label>نوع التمرين</label><select id="qt"><option value="">الكل</option><option value="syl">ترتيب أصوات / مقاطع</option><option value="wrd">ترتيب كلمات لجملة</option><option value="snt">ترتيب جمل لفقرة</option></select></div>
+  <div><label>عدد الأسئلة</label><input id="qn" type="number" min="1" value="10"></div></div>
+  <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="qc" style="width:auto" checked> وضع التحدي: الخطأ يُحتسب ولا يُقبل</label><div class="row" style="margin-top:10px"><button class="btn" onclick="gen()">⟳ إنشاء / تحديث الاختبار</button></div>
+  <div id="qmsg" style="margin-top:8px;font-size:13px"></div>
+ </div>
+ <div id="play" class="hid">
+  <div class="stage" id="stage"><div class="bub" id="bub"></div></div>
+  <div class="bar" id="bar"></div>
+  <div class="chips" id="chips"></div>
+  <div class="row" style="margin-top:10px;justify-content:center">
+   <button class="btn g" onclick="say()">🔊 استماع</button>
+   <button class="btn g" onclick="reset()">↺ إعادة</button></div>
+  <div class="nav"><button class="btn g" onclick="mv(1)">السابق</button><button class="btn" id="nx" onclick="mv(-1)">التالي ←</button></div>
+ </div>
+</section>
+
+<section id="p2" class="hid">
+ <div class="card"><b>الصفوف</b>
+  <div class="row"><input id="ng" placeholder="مثال: الصف الأول"><button class="btn" onclick="addL('grades','ng')">+ إضافة</button></div>
+  <div id="lg"></div></div>
+ <div class="card"><b>المواد</b>
+  <div class="row"><input id="ns" placeholder="مثال: لغتي"><button class="btn" onclick="addL('subjects','ns')">+ إضافة</button></div>
+  <div id="ls"></div></div>
+ <div class="card"><b id="ft">إضافة سؤال</b>
+  <div class="row"><div><label>الصف</label><select id="ig"></select></div><div><label>المادة</label><select id="is"></select></div></div>
+  <label>نوع التمرين</label>
+  <select id="it" onchange="hint();recUI()"><option value="syl">ترتيب أصوات / مقاطع → كلمة</option><option value="wrd">ترتيب كلمات → جملة</option><option value="snt">ترتيب جمل → فقرة</option></select>
+  <label id="lh"></label><textarea id="tx" onchange="recUI()"></textarea>
+  <label>🎙 تسجيل صوتك (يُستخدم بدل صوت الجهاز)</label>
+  <div id="ra" class="row"></div>
+  <label>تسجيل كل قطعة على حدة (اختياري، مفيد للأصوات والمقاطع)</label>
+  <div id="rp"></div>
+  <label>صورة (اختياري)</label><input type="file" id="im" accept="image/*">
+  <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="li" style="width:auto"> وضع الاستماع: يسمع الطالب النص (صوت الجهاز) ثم يرتب</label>
+  <div class="row" style="margin-top:10px"><button class="btn" onclick="saveItem()">💾 حفظ السؤال</button><button class="btn g" onclick="clr()">جديد</button></div>
+ </div>
+ <div class="card"><b>الأسئلة المحفوظة</b>
+  <div class="row" style="margin:8px 0"><select id="fg" onchange="list()"></select><select id="fs" onchange="list()"></select></div>
+  <div id="items"></div></div>
+ <div class="card"><b>نسخ احتياطي</b>
+  <div class="row"><button class="btn g" onclick="expo()">⬇ تصدير</button><button class="btn g" onclick="impo.click()">⬆ استيراد</button><input type="file" id="impo" class="hid" accept=".json" onchange="impF(this)"></div></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const K='arrange_db_v1';
+let db;try{db=JSON.parse(localStorage.getItem(K))}catch(e){}
+if(!db)db={grades:[{id:1,name:'الصف الأول'}],subjects:[{id:2,name:'لغتي'}],items:[],n:10};
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(db))}catch(e){alert('المساحة ممتلئة، احذف بعض الصور أو صدّر نسخة احتياطية')}};
+const uid=()=>Date.now()+Math.floor(Math.random()*1e3);
+const TN={syl:'أصوات/مقاطع',wrd:'كلمات',snt:'جمل'};
+const HINT={syl:'اكتب المقاطع مفصولة بشرطة، مثال: ثَعْ-لَ-ب',wrd:'اكتب الجملة كاملة، تُقسم كلماتها تلقائياً',snt:'اكتب كل جملة في سطر منفصل بالترتيب الصحيح'};
+function tab(n){[1,2].forEach(i=>{$('p'+i).classList.toggle('hid',i!=n);$('t'+i).classList.toggle('on',i==n)});if(n==2)ren()}
+const opts=(a,all)=>(all?'<option value="">الكل</option>':'')+a.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
+function ren(){
+ for(const [k,id] of [['grades','lg'],['subjects','ls']])
+  $(id).innerHTML=db[k].map(x=>`<span class="tag">${x.name} <a href="#" onclick="delL('${k}',${x.id});return false">✕</a></span>`).join('');
+ const keep=['qg','qs','ig','is','fg','fs'].map(i=>$(i).value);
+ $('qg').innerHTML=opts(db.grades);$('qs').innerHTML=opts(db.subjects);
+ $('ig').innerHTML=opts(db.grades);$('is').innerHTML=opts(db.subjects);
+ $('fg').innerHTML=opts(db.grades,1);$('fs').innerHTML=opts(db.subjects,1);
+ ['qg','qs','ig','is','fg','fs'].forEach((i,j)=>{if([...$(i).options].some(o=>o.value==keep[j]))$(i).value=keep[j]});
+ $('qn').value=db.n||10;hint();list();
+}
+function addL(k,i){const v=$(i).value.trim();if(!v)return;db[k].push({id:uid(),name:v});$(i).value='';save();ren()}
+function delL(k,id){if(!confirm('حذف؟ ستبقى الأسئلة المرتبطة محفوظة لكن دون تصنيف'))return;db[k]=db[k].filter(x=>x.id!=id);save();ren()}
+function hint(){$('lh').textContent=HINT[$('it').value]}
+let img='',edit=null,au='',pa={},rec=null;
+async function recStart(k){
+ try{const st=await navigator.mediaDevices.getUserMedia({audio:true});
+ const mr=new MediaRecorder(st,{audioBitsPerSecond:24000}),ch=[];
+ mr.ondataavailable=e=>ch.push(e.data);
+ mr.onstop=()=>{st.getTracks().forEach(t=>t.stop());const r=new FileReader();r.onload=()=>{if(k=='all')au=r.result;else pa[k]=r.result;rec=null;recUI()};r.readAsDataURL(new Blob(ch,{type:mr.mimeType}))};
+ mr.start();rec={mr,k};recUI()}catch(e){alert('تعذر تشغيل الميكروفون. اسمح للمتصفح بالوصول إليه (قد لا يعمل بعض المتصفحات مع الملفات المحلية، جرّب كروم أو فايرفوكس).')}}
+function rb(k){if(rec){if(rec.k==k)rec.mr.stop()}else recStart(k)}
+function pl(k){const u=k=='all'?au:pa[k];if(u)new Audio(u).play()}
+function rd(k){if(k=='all')au='';else delete pa[k];recUI()}
+function rbtn(k,has){const on=rec&&rec.k==k;
+ return `<button class="btn ${on?'r':'g'}" onclick="rb('${k}')">${on?'⏹ إيقاف':'🎙 تسجيل'}</button>`+(has&&!on?`<button class="btn g" onclick="pl('${k}')">▶</button><button class="btn g" onclick="rd('${k}')">✕</button>`:'')}
+function recUI(){
+ $('ra').innerHTML=rbtn('all',au);
+ const p=parts({type:$('it').value,text:$('tx').value});
+ $('rp').innerHTML=p.map((t,i)=>`<div class="rr"><b>${t}</b>${rbtn(i,pa[i])}</div>`).join('')||'<small>اكتب النص أولاً</small>'}
+$('im').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const m=new Image();m.onload=()=>{const s=Math.min(1,400/Math.max(m.width,m.height)),c=document.createElement('canvas');c.width=m.width*s;c.height=m.height*s;c.getContext('2d').drawImage(m,0,0,c.width,c.height);img=c.toDataURL('image/jpeg',.8)};m.src=r.result};r.readAsDataURL(f)};
+function parts(it){
+ const t=it.text.trim();
+ if(it.type=='syl')return t.split(/[-–|]/).map(s=>s.trim()).filter(Boolean);
+ if(it.type=='wrd')return t.split(/\s+/).filter(Boolean);
+ return t.split(/\n+/).map(s=>s.trim()).filter(Boolean)}
+function saveItem(){
+ const t=$('tx').value.trim();if(!t){alert('اكتب النص');return}
+ const o={id:edit||uid(),grade:+$('ig').value,subject:+$('is').value,type:$('it').value,text:t,img:img,listen:$('li').checked,audio:au,pa:pa};
+ if(rec){alert('أوقف التسجيل أولاً');return}
+ if(parts(o).length<2){alert('يلزم قطعتان على الأقل');return}
+ if(edit){const i=db.items.findIndex(x=>x.id==edit);db.items[i]=o}else db.items.push(o);
+ save();clr();list()}
+function clr(){edit=null;img='';au='';pa={};recUI();$('tx').value='';$('im').value='';$('li').checked=false;$('ft').textContent='إضافة سؤال'}
+function list(){
+ const g=$('fg').value,s=$('fs').value;
+ const a=db.items.filter(x=>(!g||x.grade==g)&&(!s||x.subject==s));
+ const nm=(k,id)=>(db[k].find(x=>x.id==id)||{name:'—'}).name;
+ $('items').innerHTML=a.map(x=>`<div class="it">${x.img?`<img src="${x.img}" width="40">`:''}<div>${x.text.replace(/\n/g,' ⏎ ')}<br><small>${nm('grades',x.grade)} · ${nm('subjects',x.subject)} · ${TN[x.type]}${x.listen?' · 🔊':''}${x.audio||Object.keys(x.pa||{}).length?' · 🎙':''}</small></div>
+ <button class="btn g" onclick="ed(${x.id})">✎</button><button class="btn r" onclick="del(${x.id})">🗑</button></div>`).join('')||'<small>لا توجد أسئلة</small>'}
+function ed(id){const x=db.items.find(i=>i.id==id);edit=id;img=x.img;au=x.audio||'';pa=x.pa||{};$('ig').value=x.grade;$('is').value=x.subject;$('it').value=x.type;$('tx').value=x.text;$('li').checked=x.listen;hint();recUI();$('ft').textContent='تعديل سؤال';scrollTo(0,0)}
+function del(id){if(confirm('حذف السؤال؟')){db.items=db.items.filter(x=>x.id!=id);save();list()}}
+function expo(){if(window.flutter_inappwebview){flutter_inappwebview.callHandler('saveFile','arrange-backup.json',JSON.stringify(db));return}if(window.AndroidBridge){AndroidBridge.saveFile('arrange-backup.json',JSON.stringify(db));return}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='arrange-backup.json';a.click()}
+function impF(el){const f=el.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.items)throw 0;db=d;save();ren()}catch(e){alert('ملف غير صالح')}};r.readAsText(f)}
+
+/* ===== الاختبار ===== */
+let Q=[],qi=0,S=null,CH=true;
+function beep(f,d){try{const c=new(window.AudioContext||webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+d)}catch(e){}}
+const vib=n=>{try{navigator.vibrate(n)}catch(e){}};
+const shuf=a=>{let b=a.slice(),n=0;do{for(let i=b.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[b[i],b[j]]=[b[j],b[i]]}}while(b.length>1&&n++<9&&b.every((v,i)=>v==a[i]));return b};
+function gen(){
+ db.n=+$('qn').value||10;save();
+ let a=db.items.filter(x=>x.grade==$('qg').value&&x.subject==$('qs').value&&(!$('qt').value||x.type==$('qt').value));
+ if(!a.length){$('qmsg').textContent='لا توجد أسئلة لهذا الصف والمادة. أضفها من «إدارة المعلم».';return}
+ Q=shuf(a).slice(0,db.n).map(x=>({it:x,parts:parts(x),order:null,done:null}));
+ Q.forEach(q=>{q.order=shuf(q.parts.map((_,i)=>i));q.done=q.parts.map(()=>-1);q.err=0});
+ CH=$('qc').checked;
+ qi=0;$('qmsg').textContent='تم إنشاء اختبار من '+Q.length+' سؤال ✔';
+ $('play').classList.remove('hid');show()}
+function show(){
+ const q=Q[qi],it=q.it;
+ $('stage').innerHTML=(it.img?`<img src="${it.img}">`:'')+'<div class="bub" id="bub"></div>';
+ $('bar').innerHTML=Q.map((x,i)=>`<i class="${x.done.every(v=>v>=0)?'d':''} ${i==qi?'c':''}"></i>`).join('');
+ drawB();
+ $('chips').innerHTML=q.order.map(pi=>`<button class="chip ${q.done.includes(pi)?'u':''}" onclick="tap(${pi})">${q.parts[pi]}</button>`).join('');
+ $('nx').textContent=qi==Q.length-1?'إنهاء ✔':'التالي ←';
+ if(it.listen&&!q.said){q.said=1;setTimeout(say,300)}}
+function drawB(){
+ const q=Q[qi],sep=q.it.type=='syl'?'':' ';
+ $('bub').innerHTML=q.parts.map((_,i)=>{const v=q.done[i];return `<span class="sl ${v>=0?'f':''}" onclick="undo(${i})">${v>=0?q.parts[v]:'&nbsp;&nbsp;&nbsp;'}</span>`}).join('');
+ if(q.parts.length>6||q.it.type=='snt')$('bub').style.fontSize=q.it.type=='snt'?'18px':'22px'}
+function tap(pi){
+ const q=Q[qi];
+ const it=q.it;if(it.pa&&it.pa[pi]){new Audio(it.pa[pi]).play()}
+ else if(!it.audio&&!Object.keys(it.pa||{}).length&&(it.type=='syl'||it.type=='wrd')){const sp=new SpeechSynthesisUtterance(q.parts[pi]);sp.lang='ar-SA';try{speechSynthesis.cancel();speechSynthesis.speak(sp)}catch(e){}}
+ /* انتقال مباشر للمكان الصحيح: أول خانة فارغة نصها يطابق القطعة */
+ if(CH){const f=q.done.findIndex(v=>v<0);
+  if(f<0)return;
+  if(q.parts[f]!=q.parts[pi]){q.err++;beep(200,.25);vib(80);const b=[...$('chips').children].find((_,i)=>q.order[i]==pi);if(b){b.classList.add('x');setTimeout(()=>b.classList.remove('x'),400)}return}
+  q.done[f]=pi;beep(660,.12);show();
+ }else{
+  const k=q.parts.findIndex((p,i)=>q.done[i]<0&&p==q.parts[pi]);
+  if(k<0)return;q.done[k]=pi;show()}
+ if(q.done.every(v=>v>=0)){q.won=1;beep(880,.25);vib(40)}}
+function undo(i){const q=Q[qi];if(q.done[i]>=0){q.done[i]=-1;show()}}
+function reset(){const q=Q[qi];q.done=q.parts.map(()=>-1);q.order=shuf(q.order);show()}
+function mv(d){
+ const q=Q[qi];
+ if(d==-1){ /* التالي */
+  if(!q.done.every(v=>v>=0)){alert('أكمل الترتيب أولاً');return}
+  if(qi==Q.length-1){const ok=Q.filter(x=>x.done.every(v=>v>=0)).length,er=Q.reduce((s,x)=>s+(x.err||0),0),cl=Q.filter(x=>!x.err).length,r=cl/Q.length,st=r>=.85?3:r>=.5?2:1;$('play').innerHTML=`<div class="card big">🎉 أحسنت!<div class="st">${'⭐'.repeat(st)}</div>أنهيت ${ok} من ${Q.length}${CH?`<br>بدون أخطاء: ${cl} · عدد الأخطاء: ${er}`:''}<br><br><button class="btn" onclick="location.reload()">اختبار جديد</button></div>`;return}
+  qi++}else if(qi>0)qi--;
+ show()}
+function say(){
+ const q=Q[qi],it=q.it;
+ if(it.audio){new Audio(it.audio).play();return}
+ if(q.parts.every((_,i)=>it.pa&&it.pa[i])){let i=0;const nx=()=>{if(i<q.parts.length){const a=new Audio(it.pa[i++]);a.onended=nx;a.play()}};nx();return}
+ try{speechSynthesis.cancel();const sep=q.it.type=='syl'?'':' ';
+ const s=new SpeechSynthesisUtterance(q.parts.join(sep));s.lang='ar-SA';s.rate=.8;speechSynthesis.speak(s)}catch(e){alert('الجهاز لا يدعم النطق')}}
+ren();recUI();
+</script>
+</body>
+</html>
