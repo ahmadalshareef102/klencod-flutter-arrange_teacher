@@ -46,14 +46,16 @@ jobs:
           sed -i 's|android:label="[^"]*"|android:label="تمارين الترتيب"|' android/app/src/main/AndroidManifest.xml
           grep -n 'android:label' android/app/src/main/AndroidManifest.xml
 
-      - name: Ensure permissions after create
+      - name: Ensure permissions, TTS query and minSdk after create
         run: |
           M=android/app/src/main/AndroidManifest.xml
-          for P in INTERNET RECORD_AUDIO MODIFY_AUDIO_SETTINGS; do
-            grep -q "android.permission.$P" $M || sed -i "0,/<application/s|<application|<uses-permission android:name=\"android.permission.$P\" />\n    <application|" $M
+          grep -q "android.permission.RECORD_AUDIO" $M || sed -i "0,/<application/s|<application|<uses-permission android:name=\"android.permission.RECORD_AUDIO\" />\n    <application|" $M
+          grep -q "TTS_SERVICE" $M || sed -i 's|</manifest>|    <queries><intent><action android:name="android.intent.action.TTS_SERVICE" /></intent></queries>\n</manifest>|' $M
+          for G in android/app/build.gradle android/app/build.gradle.kts; do
+            [ -f "$G" ] && sed -i -e 's/minSdk = flutter.minSdkVersion/minSdk = 24/' -e 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 24/' "$G" || true
           done
-          grep -q usesCleartextTraffic $M || sed -i 's|<application|<application android:usesCleartextTraffic="true"|' $M
-          grep -n 'uses-permission\|usesCleartextTraffic' $M
+          grep -n 'RECORD_AUDIO\|TTS_SERVICE' $M
+          grep -n 'minSdk' android/app/build.gradle* || true
 
       - name: Verify Android Gradle files
         run: |

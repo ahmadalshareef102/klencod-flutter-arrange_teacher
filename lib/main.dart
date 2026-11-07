@@ -1,67 +1,71 @@
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:file_picker/file_picker.dart';
-import 'config.dart';
+import 'quiz_page.dart';
+import 'store.dart';
+import 'teacher_page.dart';
 
-final InAppLocalhostServer server =
-    InAppLocalhostServer(documentRoot: 'assets', port: serverPort);
+const seed = Color(0xFF7B83C9);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await server.start();
-  runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: Home()));
+  final store = await Store.open();
+  runApp(App(store: store));
 }
 
-class Home extends StatelessWidget {
-  const Home({super.key});
+class App extends StatelessWidget {
+  const App({super.key, required this.store});
+  final Store store;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'تمارين الترتيب',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: seed),
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark),
+      ),
+      builder: (context, child) =>
+          Directionality(textDirection: TextDirection.rtl, child: child!),
+      home: Home(store: store),
+    );
+  }
+}
+
+class Home extends StatefulWidget {
+  const Home({super.key, required this.store});
+  final Store store;
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  int tab = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF6256AA),
+      appBar: AppBar(title: const Text('🧩 تمارين الترتيب')),
       body: SafeArea(
-        child: InAppWebView(
-          initialUrlRequest:
-              URLRequest(url: WebUri(appUrl)),
-          initialSettings: InAppWebViewSettings(
-            javaScriptEnabled: true,
-            mediaPlaybackRequiresUserGesture: false,
-            allowFileAccess: false,
-            supportZoom: false,
-            useHybridComposition: true,
-          ),
-          onWebViewCreated: (c) {
-            c.addJavaScriptHandler(
-              handlerName: 'saveFile',
-              callback: (args) async {
-                final bytes = Uint8List.fromList(utf8.encode(args[1] as String));
-                await FilePicker.platform.saveFile(
-                  fileName: args[0] as String,
-                  bytes: bytes,
-                );
-                return true;
-              },
-            );
-          },
-          onPermissionRequest: (c, req) async {
-            final st = await Permission.microphone.request();
-            return PermissionResponse(
-              resources: req.resources,
-              action: st.isGranted
-                  ? PermissionResponseAction.GRANT
-                  : PermissionResponseAction.DENY,
-            );
-          },
-          shouldOverrideUrlLoading: (c, a) async {
-            final h = a.request.url?.host;
-            return h == appHost
-                ? NavigationActionPolicy.ALLOW
-                : NavigationActionPolicy.CANCEL;
-          },
+        child: IndexedStack(
+          index: tab,
+          children: [
+            QuizPage(store: widget.store),
+            TeacherPage(store: widget.store, onChanged: () => setState(() {})),
+          ],
         ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: tab,
+        onDestinationSelected: (i) => setState(() => tab = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.quiz_outlined), label: 'الاختبار'),
+          NavigationDestination(icon: Icon(Icons.edit_note), label: 'إدارة المعلم'),
+        ],
       ),
     );
   }
